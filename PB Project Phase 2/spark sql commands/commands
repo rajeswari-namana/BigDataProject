@@ -1,0 +1,62 @@
+cd spark-2.3.0-bin-hadoop2.7/bin
+
+./spark-shell
+
+val df=spark.read.json("/home/rajeswari/momtweet.json")
+df.createOrReplaceTempView("rsa")
+
+
+val q1=spark.sqlContext.sql("select user.lang, count(user.lang) as lang from rsa where user.lang != 'en' group by user.lang")
+q1.show()
+q1.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q1")
+
+
+
+val q2=spark.sqlContext.sql("select user.name, user.followers_count from rsa order by user.followers_count desc limit 10")
+q2.show()
+q2.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q2")
+
+
+val q3=spark.sqlContext.sql("select user.location, user.friends_count from rsa where user.friends_count >=25 limit 15")
+q3.show()
+q3.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q3")
+
+
+
+val q4=spark.sqlContext.sql("select user.name, user.statuses_count from rsa where text like '%mom%' limit 10")
+q4.show()
+q4.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q4")
+
+
+
+val q5=spark.sqlContext.sql("select user.name, user.followers_count from rsa where user.verified=false and user.followers_count>2000")
+q5.show()
+q5.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q5")
+
+
+
+val q6=spark.sqlContext.sql("select user.profile_background_color as color, count(user.profile_background_color) as colorCount from rsa where user.time_zone='Eastern Time (US & Canada)' group by user.profile_background_color limit 10")
+q6.show()
+q6.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q6")
+
+val q7=spark.sqlContext.sql("select entities.urls.url[0] as url,user.favourites_count from rsa where user.favourites_count between 25000 and 30000")
+q7.show()
+q7.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q7")
+
+val q8=spark.sqlContext.sql("select user.statuses_count,explode(entities.urls.display_url) from rsa")
+q8.show()
+
+
+val q9=spark.sqlContext.sql("select user.statuses_count, user.time_zone from rsa where user.time_zone <> ' ' order by user.statuses_count limit 10")
+q9.show()
+q9.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q9")
+
+
+val q10=spark.sqlContext.sql("select user.profile_text_color as TextColor, count(user.profile_text_color) as colorCount from rsa where user.geo_enabled=false group by user.profile_text_color")
+q10.show()
+q10.repartition(1).write.format("com.databricks.spark.csv").option("header","true").save("/home/rajeswari/output/q10")
+
+
+
+
+
