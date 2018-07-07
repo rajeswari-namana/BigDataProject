@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .arc text {
+        font: 12px sans-serif;
+        text-anchor: middle;
+    }
+    .arc path {
+        stroke: #fff;
+    }
+</style>
+<h1>Location - FriendsCount</h1>
+<svg width="760" height="600"></svg>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+    var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height"),
+        radius = Math.min(width, height) / 2,
+        g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    var color = d3.scaleOrdinal(["#8a89a6", "#7b6888", "#00ff00", "#a05d56", "#d0743c", "#ff8c00", "#ff0000", "#0000ff", "#ff69b4"]);
+    var pie = d3.pie()
+        .sort(null)
+        .value(function(d) { return d.friends_count; });
+    var path = d3.arc()
+        .outerRadius(radius - 50)
+        .innerRadius(0);
+    var label = d3.arc()
+        .outerRadius(radius - 30)
+        .innerRadius(radius - 10);
+    d3.csv("ring3.csv", function(d) {
+        d.friends_count = +d.friends_count;
+        return d;
+    }, function(error, data) {
+        if (error) throw error;
+        var arc = g.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+            .attr("class", "arc");
+        arc.append("path")
+            .attr("d", path)
+            .attr("fill", function(d) { return color(d.data.location); });
+        arc.append("text")
+            .attr("transform", function(d) { return "translate(" + label.centroid(d) + ")"; })
+            .attr("dy", "0.35em")
+            .text(function(d) { return d.data.location + " - " + (d.data.friends_count* 0.0074*1.066).toFixed(0) + "%"; });
+    });
+</script>
